@@ -84,6 +84,35 @@ public struct StateBlock {
 }
 
 extension StateBlock.Line {
+    public mutating func normalize() {
+        let start = string.index(string.startIndex, offsetBy: indent)
+        self = .init(string: string[start...], indent: 0, spaces: 0)
+    }
+
+    public mutating func consume(reversed: Bool = false) -> Character {
+        let peek = _peek(reversed: reversed)
+        defer {
+            if peek.hasNext {
+                let next = string.index(peek.index, offsetBy: reversed ? -1 : 1)
+                string = reversed ? string[..<next] : string[next...]
+            }
+        }
+        return string[peek.index]
+    }
+
+    public func peek(reversed: Bool = false) -> Character {
+        string[_peek(reversed: reversed).index]
+    }
+
+    private func _peek(reversed: Bool) -> (index: Substring.Index, hasNext: Bool) {
+        if reversed {
+            let end = string.index(before: string.endIndex)
+            return (end, end > string.startIndex)
+        } else {
+            let next = string.index(after: string.startIndex)
+            return (string.startIndex, next < string.endIndex)
+        }
+    }
 }
 
 private extension Token.Nesting {

@@ -36,15 +36,39 @@ class StateBlockTests: XCTestCase {
     }
 
     func test_tokens() {
-        var md = MarkdownIt()
-        let tokens = md.parse("""
-        abcdef
-        ghijkl
+        let md = MarkdownIt()
+        do {  // paragraph
+            let tokens = md.parse("""
+            abcdef
+            ghijkl
 
-        end
-        """)
+            end
+            """)
 
-        XCTAssertEqual(tokens.count, 6)
-        print(tokens)
+            XCTAssertEqual(tokens.map(\.type), [
+                "paragraph_open",
+                "inline",
+                "paragraph_close",
+                "paragraph_open",
+                "inline",
+                "paragraph_close"
+            ])
+            print(tokens)
+        }
+        do {  // heading
+            var tokens = md.parse("""
+            # title
+              ## subtitle
+            """)
+
+            XCTAssertEqual(tokens.map(\.type), [
+                "heading_open",
+                "inline",
+                "heading_close",
+                "heading_open",
+                "inline",
+                "heading_close"
+            ])
+        }
     }
 }

@@ -1,6 +1,7 @@
 import Foundation
 
 private let _rules: [Rule<StateBlock>] = [
+    .heading,
     .paragraph
 ]
 
@@ -20,10 +21,10 @@ struct ParserBlock {
         var index = startIndex
         while index < endIndex {
             state.cursor = index
-            defer { index += 1 }
             
             let line = state.lines[index]
             if line.isEmpty {
+                index += 1
                 continue
             }
 
@@ -47,7 +48,7 @@ struct ParserBlock {
             let ok = applyRules()
             assert(ok, "none of the block rules matched")
 
-            index += 1
+            index = state.cursor
         }
     }
 }
