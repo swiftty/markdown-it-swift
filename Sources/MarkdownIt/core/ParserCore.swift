@@ -1,7 +1,7 @@
 import Foundation
 
 private let _rules: [Rule<StateCore>] = [
-    .block
+    .init(name: "block", body: Rule.block)
 ]
 
 struct ParserCore {

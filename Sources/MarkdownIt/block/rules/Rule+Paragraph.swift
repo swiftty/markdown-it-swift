@@ -1,8 +1,8 @@
 import Foundation
 
 extension Rule where State == StateBlock {
-    public static var paragraph: Self {
-        self.init(name: "paragraph") { state, startCursor in
+    public static var paragraph: Body {
+        return { state, startCursor in
             let terminatorRules = state.md.block.ruler.rules(for: "paragraph")
 
             let oldParentType = state.parentType

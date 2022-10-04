@@ -1,10 +1,12 @@
 import Foundation
 
 public struct Rule<State> {
+    public typealias Body = (_ state: inout State, _ cursor: Int) -> Bool
+
     public var name: String
     public var alias: Set<String> = []
     public var isEnabled: Bool = true
-    public var body: (_ state: inout State, _ cursor: Int) -> Bool
+    public var body: Body
 }
 
 public struct Ruler<State> {

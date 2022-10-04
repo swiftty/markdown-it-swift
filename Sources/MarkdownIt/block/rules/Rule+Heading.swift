@@ -1,8 +1,8 @@
 import Foundation
 
 extension Rule where State == StateBlock {
-    public static var heading: Self {
-        self.init(name: "heading", alias: ["paragraph", "reference", "blockquote"]) { state, startCursor in
+    public static var heading: Body {
+        return  { state, startCursor in
             var line = state.lines[startCursor]
 
             if line.spaces - state.blockIndent >= 4 {

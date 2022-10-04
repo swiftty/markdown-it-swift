@@ -1,8 +1,8 @@
 import Foundation
 
 private let _rules: [Rule<StateBlock>] = [
-    .heading,
-    .paragraph
+    .init(name: "heading", alias: ["paragraph", "reference", "blockquote"], body: Rule.heading),
+    .init(name: "paragraph", body: Rule.paragraph)
 ]
 
 struct ParserBlock {
