@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Token {
-    public enum Nesting {
+    public enum Nesting: Equatable {
         case opening, closing(`self`: Bool = false)
     }
     public var type: String
@@ -12,4 +12,6 @@ public struct Token {
 
     public var content = ""
     public var markup = ""
+
+    public var children: [Token] = []
 }

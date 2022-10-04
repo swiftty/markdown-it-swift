@@ -11,8 +11,10 @@ struct ParserBlock {
 
     init() {}
 
-    func callAsFunction(_ state: inout StateBlock) {
+    func callAsFunction(_ source: Substring, md: MarkdownIt, tokens: inout [Token]) {
+        var state = StateBlock(source: source, md: md)
         tokenize(state: &state)
+        tokens = state.tokens
     }
 
     func tokenize(state: inout StateBlock, from startIndex: Int = 0) {
