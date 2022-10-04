@@ -5,9 +5,7 @@ extension Rule where State == StateBlock {
         return  { state, startCursor in
             var line = state.lines[startCursor]
 
-            if line.spaces - state.blockIndent >= 4 {
-                return false
-            }
+            guard !line.shouldBeCodeBlock(on: state.blockIndent) else { return false }
 
             line.normalize()
             guard line.consume() == "#" else { return false }

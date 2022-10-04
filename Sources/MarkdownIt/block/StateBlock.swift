@@ -84,6 +84,10 @@ public struct StateBlock {
 }
 
 extension StateBlock.Line {
+    public func shouldBeCodeBlock(on blockIndent: Int) -> Bool {
+        spaces - blockIndent >= 4
+    }
+
     public mutating func normalize() {
         let start = string.index(string.startIndex, offsetBy: indent)
         self = .init(string: string[start...], indent: 0, spaces: 0)
@@ -109,8 +113,8 @@ extension StateBlock.Line {
             let end = string.index(before: string.endIndex)
             return (end, end > string.startIndex)
         } else {
-            let next = string.index(after: string.startIndex)
-            return (string.startIndex, next < string.endIndex)
+            let start = string.startIndex
+            return (start, start < string.endIndex)
         }
     }
 }

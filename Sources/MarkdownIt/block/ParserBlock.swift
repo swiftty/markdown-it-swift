@@ -1,6 +1,7 @@
 import Foundation
 
 private let _rules: [Rule<StateBlock>] = [
+    .init(name: "hr", alias: ["paragraph", "reference", "blockquote", "list"], body: Rule.horizontalRule),
     .init(name: "heading", alias: ["paragraph", "reference", "blockquote"], body: Rule.heading),
     .init(name: "paragraph", body: Rule.paragraph)
 ]
