@@ -142,3 +142,67 @@ extension Source.Location {
         }
     }
 }
+
+extension Source {
+    public func lines() -> Lines {
+        Lines(base: self)
+    }
+
+    private init(line source: inout Source) {
+        _cursor = source._cursor
+        _location = source._location
+        _current = source._current
+        source.consume(while: !\.isNewline)
+        _string = source._string[_cursor..<source._cursor]
+        source.consume(if: \.isNewline)
+    }
+
+    public struct Lines {
+        public var isEmpty: Bool {
+            current.isEmpty && base.isEmpty
+        }
+
+        public private(set) var cursor = 0
+
+        private var base: Source
+        private var current: Source
+
+        init(base: Source) {
+            self.base = base
+            current = Source(line: &self.base)
+        }
+
+        @discardableResult
+        public mutating func consume() -> Source {
+            defer {
+                if !current.isEmpty {
+                    cursor += 1
+                }
+                current = Source(line: &base)
+            }
+            return current
+        }
+
+        public func peek() -> Source {
+            return current
+        }
+
+        public func currentState() -> Source {
+            base
+        }
+
+        public func string(from ranges: [Range<Substring.Index>]) -> Substring {
+            var minIndex, maxIndex: Substring.Index!
+            for range in ranges {
+                minIndex = (minIndex == nil
+                            ? range.lowerBound
+                            : min(range.lowerBound, minIndex))
+
+                maxIndex = (maxIndex == nil
+                            ? range.upperBound
+                            : max(range.upperBound, maxIndex))
+            }
+            return base[minIndex..<maxIndex]
+        }
+    }
+}

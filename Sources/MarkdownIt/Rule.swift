@@ -52,3 +52,36 @@ public struct Ruler<State> {
         return cache[name]
     }
 }
+
+public struct NewRule<State> {
+    public typealias Body = (inout Source.Lines, inout State) -> Bool
+
+    public var name: String
+    public var terminatedBy: Set<String> = []
+    public var isEnabled: Bool = true
+    public var body: Body
+}
+
+public struct NewRuler<State> {
+    private var rules: [String: [NewRule<State>]] = [:]
+
+    init(rules ruleList: [NewRule<State>]) {
+        var chains: Set<String> = [""]
+        ruleList.forEach {
+            chains.formUnion($0.terminatedBy)
+        }
+
+        for chain in chains {
+            for rule in ruleList {
+                guard rule.isEnabled else { continue }
+                guard chain.isEmpty || rule.terminatedBy.contains(chain) else { continue }
+                rules[chain, default: []].append(rule)
+            }
+        }
+    }
+
+    public func rules(for name: String) -> [NewRule<State>] {
+        return rules[name] ?? []
+    }
+}
+
