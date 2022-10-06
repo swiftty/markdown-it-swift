@@ -1,31 +1,16 @@
 import Foundation
 
 public struct MarkdownIt {
-    var inline = ParserInline()
-
-    var core = ParserCore()
-
-    var block = ParserBlock()
-
-    public func parse(_ source: String) -> [Token] {
-        var tokens: [Token] = []
-        core(source[...], md: self, tokens: &tokens)
-        return tokens
-    }
-}
-
-
-public struct NewMarkdownIt {
     public func parse(_ source: String) -> [Token] {
         var source = Source(source)
 
         // tokenize as block
-        let blockRuler = NewRuler<BlockState>(rules: [
+        let blockRuler = Ruler<BlockState>(rules: [
             .init(name: "hr", terminatedBy: ["paragraph", "reference", "blockquote", "list"],
-                  body: NewRule.horizontalRule),
+                  body: Rule.horizontalRule),
             .init(name: "heading", terminatedBy: ["paragraph", "reference", "blockquote"],
-                  body: NewRule.heading),
-            .init(name: "paragraph", body: NewRule.paragraph)
+                  body: Rule.heading),
+            .init(name: "paragraph", body: Rule.paragraph)
         ])
         let blockRules = blockRuler.rules(for: "")
         var blockState = BlockState(ruler: blockRuler)
@@ -77,54 +62,5 @@ public struct NewMarkdownIt {
 
         // finalize
         return tokens
-    }
-}
-
-struct BlockState {
-    var blockIndent = 0
-    var level = 0
-
-    var ruler: NewRuler<BlockState>
-
-    var tokens: [Token] = []
-}
-
-struct InlineState {
-    var tokens: [Token] = []
-
-    var level = 0
-
-    var pending = ""
-    var pendingLevel = 0
-}
-
-extension BlockState {
-    mutating func push(_ type: String, nesting: Token.Nesting,
-                       _ modify: (inout Token) -> Void = { _ in }) {
-        var token = Token(type: type, nesting: nesting, level: level)
-        token.block = true
-
-        level += nesting.nextLevel
-
-        modify(&token)
-        tokens.append(token)
-    }
-}
-
-private extension Token.Nesting {
-    var nextLevel: Int {
-        switch self {
-        case .opening: return 1
-        case .closing(let flag): return flag ? 0 : -1
-        }
-    }
-}
-
-extension InlineState {
-    mutating func pushPending() {
-        var token = Token(type: "text", nesting: .closing(self: true), level: pendingLevel)
-        token.content = pending
-        tokens.append(token)
-        pending = ""
     }
 }

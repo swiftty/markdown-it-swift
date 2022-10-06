@@ -9,7 +9,7 @@ private func flattenTypes(_ tokens: [Token], level: Int = 0) -> [String] {
 }
 
 private func parse(_ source: String) -> [Token] {
-    let md = NewMarkdownIt()
+    let md = MarkdownIt()
     return md.parse(source)
 }
 
