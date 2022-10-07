@@ -1,6 +1,6 @@
 import Foundation
 
-extension Rule<BlockState> {
+extension Rule<Cursors.Line, BlockState> {
     static var heading: Body {
         return { lines, state in
             var line = lines.peek()
@@ -11,14 +11,16 @@ extension Rule<BlockState> {
             var level = 1
             while line.peek() == "#" {
                 level += 1
-                _ = line.consume()
+                line.consume()
                 if level > 6 {
                     return false
                 }
             }
 
+            guard line.consume() == " " else { return false }
+
             // Let's cut tails like '    ###  ' from the end of string
-            var content = line[line.range]
+            var content = line.content
             content.trim(after: \.isWhitespace)
             content.trim(after: { $0 == "#" })
 

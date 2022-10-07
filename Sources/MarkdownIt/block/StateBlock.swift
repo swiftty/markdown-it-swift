@@ -4,7 +4,7 @@ struct BlockState {
     var blockIndent = 0
     var level = 0
 
-    var ruler: Ruler<BlockState>
+    var ruler: Ruler<Cursors.Line, BlockState>
 
     var tokens: [Token] = []
 }

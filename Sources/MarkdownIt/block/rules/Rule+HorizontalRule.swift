@@ -1,6 +1,6 @@
 import Foundation
 
-extension Rule<BlockState> {
+extension Rule<Cursors.Line, BlockState> {
     static var horizontalRule: Body {
         return { lines, state in
             var line = lines.peek()

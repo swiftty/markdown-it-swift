@@ -1,18 +1,18 @@
 import Foundation
 
-extension Rule<BlockState> {
+extension Rule<Cursors.Line, BlockState> {
     static var paragraph: Body {
         return { lines, state in
             let terminatorRules = state.ruler.rules(for: "paragraph")
 
-            var ranges: [Range<Substring.Index>] = []
+            let startIndex = lines.consume().cursor.index
+            var endIndex = lines.cursor.endIndex
+
             while !lines.isEmpty {
-                var line = lines.peek()
+                endIndex = lines.cursor.endIndex
 
+                var line = lines.consume()
                 guard !line.isEmpty else { break }
-
-                ranges.append(line.range)
-                defer { lines.consume() }
 
                 if line.shouldBeCodeBlock(on: state.blockIndent) {
                     continue
@@ -34,7 +34,7 @@ extension Rule<BlockState> {
                 }
             }
 
-            let content = lines.string(from: ranges).trimmed()
+            let content = lines.content(in: startIndex..<endIndex).trimmed()
 
             state.push("paragraph_open", nesting: .opening)
             state.push("inline", nesting: .closing(self: true)) { token in

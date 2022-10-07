@@ -1,7 +1,7 @@
 import Foundation
 
-public struct Rule<State> {
-    public typealias Body = (inout Source.Lines, inout State) -> Bool
+public struct Rule<Cursor, State> {
+    public typealias Body = (inout Source<Cursor>, inout State) -> Bool
 
     public var name: String
     public var terminatedBy: Set<String> = []
@@ -9,10 +9,10 @@ public struct Rule<State> {
     public var body: Body
 }
 
-public struct Ruler<State> {
-    private var rules: [String: [Rule<State>]] = [:]
+public struct Ruler<Cursor, State> {
+    private var rules: [String: [Rule<Cursor, State>]] = [:]
 
-    init(rules ruleList: [Rule<State>]) {
+    init(rules ruleList: [Rule<Cursor, State>]) {
         var chains: Set<String> = [""]
         ruleList.forEach {
             chains.formUnion($0.terminatedBy)
@@ -27,7 +27,7 @@ public struct Ruler<State> {
         }
     }
 
-    public func rules(for name: String) -> [Rule<State>] {
+    public func rules(for name: String) -> [Rule<Cursor, State>] {
         return rules[name] ?? []
     }
 }
