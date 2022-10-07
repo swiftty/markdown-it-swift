@@ -206,3 +206,85 @@ extension Source {
         }
     }
 }
+
+extension Source {
+    public static func fromString(_ string: String) -> (Source, CharacterCursor, LineCursor) {
+        let source = Source(string)
+        let ch = CharacterCursor(index: source._string.startIndex)
+        var ch1 = ch
+        source.consume(&ch1, while: !\.isNewline)
+        source.consume(&ch1, if: \.isNewline)
+        let line = LineCursor(startIndex: ch.index, endIndex: ch1.index)
+        return (source, ch, line)
+    }
+}
+
+extension Source {
+    public struct CharacterCursor: Hashable, Comparable {
+        public static func < (lhs: Self, rhs: Self) -> Bool {
+            return lhs.index < rhs.index
+        }
+
+        fileprivate var index: Substring.Index
+    }
+
+    public subscript (cursor: CharacterCursor) -> Character {
+        cursor.index < _string.endIndex ? _string[cursor.index] : "\0"
+    }
+
+    public func consume(_ cursor: inout CharacterCursor) {
+        cursor.index = _string.index(cursor.index, offsetBy: 1, limitedBy: _string.endIndex) ?? _string.endIndex
+    }
+
+    @inlinable
+    public func consume(_ cursor: inout CharacterCursor, while cond: (Character) -> Bool) {
+        while !isEmpty, cond(self[cursor]) {
+            consume(&cursor)
+        }
+    }
+
+    @inlinable
+    public func consume(_ cursor: inout CharacterCursor, while ch: Character) {
+        consume(&cursor, while: { $0 == ch })
+    }
+
+    @inlinable
+    public func consume(_ cursor: inout CharacterCursor, if cond: (Character) -> Bool) {
+        if !isEmpty, cond(self[cursor]) {
+            consume(&cursor)
+        }
+    }
+
+    @inlinable
+    public func consume(_ cursor: inout CharacterCursor, if ch: Character) {
+        consume(&cursor, if: { $0 == ch })
+    }
+}
+
+extension Source {
+    public struct LineCursor: Hashable, Comparable {
+        public static func < (lhs: Self, rhs: Self) -> Bool {
+            lhs.startIndex < rhs.startIndex
+        }
+
+        public var isEmpty: Bool {
+            (startIndex..<endIndex).isEmpty
+        }
+
+        fileprivate var startIndex: Substring.Index
+        fileprivate var endIndex: Substring.Index
+    }
+
+    public subscript (cursor: LineCursor) -> Substring {
+        _string[cursor.startIndex..<cursor.endIndex]
+    }
+
+    public func consume(_ cursor: inout LineCursor) {
+        var ch = CharacterCursor(index: cursor.endIndex)
+        consume(&ch)
+        cursor.startIndex = ch.index
+        consume(&ch, while: !\.isNewline)
+        consume(&ch, if: \.isNewline)
+        cursor.endIndex = ch.index
+    }
+}
