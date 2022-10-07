@@ -207,20 +207,8 @@ extension Source {
     }
 }
 
-extension Source {
-    public static func fromString(_ string: String) -> (Source, CharacterCursor, LineCursor) {
-        let source = Source(string)
-        let ch = CharacterCursor(index: source._string.startIndex)
-        var ch1 = ch
-        source.consume(&ch1, while: !\.isNewline)
-        source.consume(&ch1, if: \.isNewline)
-        let line = LineCursor(startIndex: ch.index, endIndex: ch1.index)
-        return (source, ch, line)
-    }
-}
-
-extension Source {
-    public struct CharacterCursor: Hashable, Comparable {
+public enum Cursors {
+    public struct Character: Hashable, Comparable {
         public static func < (lhs: Self, rhs: Self) -> Bool {
             return lhs.index < rhs.index
         }
@@ -228,41 +216,7 @@ extension Source {
         fileprivate var index: Substring.Index
     }
 
-    public subscript (cursor: CharacterCursor) -> Character {
-        cursor.index < _string.endIndex ? _string[cursor.index] : "\0"
-    }
-
-    public func consume(_ cursor: inout CharacterCursor) {
-        cursor.index = _string.index(cursor.index, offsetBy: 1, limitedBy: _string.endIndex) ?? _string.endIndex
-    }
-
-    @inlinable
-    public func consume(_ cursor: inout CharacterCursor, while cond: (Character) -> Bool) {
-        while !isEmpty, cond(self[cursor]) {
-            consume(&cursor)
-        }
-    }
-
-    @inlinable
-    public func consume(_ cursor: inout CharacterCursor, while ch: Character) {
-        consume(&cursor, while: { $0 == ch })
-    }
-
-    @inlinable
-    public func consume(_ cursor: inout CharacterCursor, if cond: (Character) -> Bool) {
-        if !isEmpty, cond(self[cursor]) {
-            consume(&cursor)
-        }
-    }
-
-    @inlinable
-    public func consume(_ cursor: inout CharacterCursor, if ch: Character) {
-        consume(&cursor, if: { $0 == ch })
-    }
-}
-
-extension Source {
-    public struct LineCursor: Hashable, Comparable {
+    public struct Line: Hashable, Comparable {
         public static func < (lhs: Self, rhs: Self) -> Bool {
             lhs.startIndex < rhs.startIndex
         }
@@ -274,17 +228,80 @@ extension Source {
         fileprivate var startIndex: Substring.Index
         fileprivate var endIndex: Substring.Index
     }
+}
 
-    public subscript (cursor: LineCursor) -> Substring {
-        _string[cursor.startIndex..<cursor.endIndex]
+public struct NewSource<Cursor> {
+    public private(set) var cursor: Cursor
+    private let string: Substring
+}
+
+extension NewSource<Cursors.Character> {
+    public var isEmpty: Bool {
+        (cursor.index..<string.endIndex).isEmpty
     }
 
-    public func consume(_ cursor: inout LineCursor) {
-        var ch = CharacterCursor(index: cursor.endIndex)
-        consume(&ch)
-        cursor.startIndex = ch.index
-        consume(&ch, while: !\.isNewline)
-        consume(&ch, if: \.isNewline)
-        cursor.endIndex = ch.index
+    public init(_ wholeString: String) {
+        string = wholeString[...]
+        cursor = .init(index: string.startIndex)
+    }
+
+    fileprivate init(_ wholeString: Substring) {
+        string = wholeString
+        cursor = .init(index: string.startIndex)
+    }
+
+    public func peek() -> Character {
+        cursor.index < string.endIndex ? string[cursor.index] : "\0"
+    }
+
+    public mutating func consume() {
+        cursor.index = string.index(cursor.index, offsetBy: 1, limitedBy: string.endIndex) ?? string.endIndex
+    }
+
+    public mutating func consume(while cond: (Character) -> Bool) {
+        while !isEmpty, cond(peek()) {
+            consume()
+        }
+    }
+
+    public mutating func consume(while ch: Character) {
+        consume(while: { $0 == ch })
+    }
+
+    public mutating func consume(if cond: (Character) -> Bool) {
+        if !isEmpty, cond(peek()) {
+            consume()
+        }
+    }
+
+    public mutating func consume(if ch: Character) {
+        consume(if: { $0 == ch })
+    }
+}
+
+extension NewSource<Cursors.Line> {
+    public var isEmpty: Bool {
+        (cursor.endIndex..<string.endIndex).isEmpty
+    }
+
+    public init(_ wholeString: String) {
+        string = wholeString[...]
+
+        var ch = NewSource<Cursors.Character>(string)
+        ch.consume(while: !\.isNewline)
+        ch.consume(if: \.isNewline)
+        cursor = .init(startIndex: string.startIndex, endIndex: ch.cursor.index)
+    }
+
+    public func peek() -> NewSource<Cursors.Character> {
+        .init(string[cursor.startIndex..<cursor.endIndex])
+    }
+
+    public mutating func consume() {
+        var ch = NewSource<Cursors.Character>(cursor: .init(index: cursor.endIndex), string: string)
+        cursor.startIndex = ch.cursor.index
+        ch.consume(while: !\.isNewline)
+        ch.consume(if: \.isNewline)
+        cursor.endIndex = ch.cursor.index
     }
 }
