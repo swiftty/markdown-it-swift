@@ -6,9 +6,9 @@ public struct MarkdownIt {
 
         // tokenize as block
         let blockRuler = Ruler<Cursors.Line, BlockState>(rules: [
-            .init(name: "hr", terminatedBy: ["paragraph", "reference", "blockquote", "list"],
+            .init(name: "hr", terminates: ["paragraph", "reference", "blockquote", "list"],
                   body: Rule.horizontalRule),
-            .init(name: "heading", terminatedBy: ["paragraph", "reference", "blockquote"],
+            .init(name: "heading", terminates: ["paragraph", "reference", "blockquote"],
                   body: Rule.heading),
             .init(name: "paragraph", body: Rule.paragraph)
         ])
