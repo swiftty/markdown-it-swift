@@ -27,7 +27,7 @@ public struct MarkdownIt {
                     let ok = rule.body(&source, &blockState)
                     if ok {
                         precondition(source.cursor != cursor,
-                                    "block rule didn't increment state.cursor")
+                                     "block rule didn't increment state.cursor")
                         return true
                     }
                 }

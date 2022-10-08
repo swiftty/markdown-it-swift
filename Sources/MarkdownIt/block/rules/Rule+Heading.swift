@@ -17,7 +17,7 @@ extension Rule<Cursors.Line, BlockState> {
                 }
             }
 
-            guard line.consume() == " " else { return false }
+            guard line.consume().isSpace else { return false }
 
             // Let's cut tails like '    ###  ' from the end of string
             var content = line.content

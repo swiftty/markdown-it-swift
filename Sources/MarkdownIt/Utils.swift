@@ -31,3 +31,9 @@ extension Substring {
         }
     }
 }
+
+extension Character {
+    public var isSpace: Bool {
+        isWhitespace && !isNewline
+    }
+}

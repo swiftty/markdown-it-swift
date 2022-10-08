@@ -14,7 +14,7 @@ extension Rule<Cursors.Line, BlockState> {
             var cnt = 1
             while !line.isEmpty {
                 let ch = line.consume()
-                guard ch.isWhitespace || ch == marker else { return false }
+                guard ch.isSpace || ch == marker else { return false }
                 cnt += ch == marker ? 1 : 0
             }
 

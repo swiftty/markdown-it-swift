@@ -3,8 +3,6 @@ import Foundation
 extension Rule<Cursors.Line, BlockState> {
     static var paragraph: Body {
         return { lines, state in
-            let terminatorRules = state.ruler.rules(for: "paragraph")
-
             let startIndex = lines.consume().cursor.index
             var endIndex = lines.cursor.endIndex
 
@@ -18,18 +16,7 @@ extension Rule<Cursors.Line, BlockState> {
                     continue
                 }
 
-                func isTerminated() -> Bool {
-                    var lines = lines
-                    var state = state
-                    for rule in terminatorRules {
-                        if rule.body(&lines, &state) {
-                            return true
-                        }
-                    }
-                    return false
-                }
-
-                if isTerminated() {
+                if state.terminate("paragraph", source: lines) {
                     break
                 }
             }
