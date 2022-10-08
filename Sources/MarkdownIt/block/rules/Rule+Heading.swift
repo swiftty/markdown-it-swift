@@ -27,13 +27,13 @@ extension Rule<Cursors.Line, BlockState> {
             lines.consume()
 
             let markup = String(repeating: "#", count: level)
-            state.push("heading_open", nesting: .opening) { token in
+            state.tokens.push("heading_open", nesting: .opening) { token in
                 token.markup = markup
             }
-            state.push("inline", nesting: .closing(self: true)) { token in
+            state.tokens.push("inline", nesting: .closing(self: true)) { token in
                 token.content = String(content)
             }
-            state.push("heading_close", nesting: .closing()) { token in
+            state.tokens.push("heading_close", nesting: .closing()) { token in
                 token.markup = markup
             }
 

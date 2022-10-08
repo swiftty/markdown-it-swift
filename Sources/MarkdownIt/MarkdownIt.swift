@@ -41,7 +41,7 @@ public struct MarkdownIt {
             }
         }
 
-        var tokens = blockState.tokens
+        var tokens = Array(blockState.tokens)
 
         // tokenize inline elements
         for (i, var token) in tokens.enumerated() where token.type == "inline" {

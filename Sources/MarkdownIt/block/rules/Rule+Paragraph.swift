@@ -23,11 +23,11 @@ extension Rule<Cursors.Line, BlockState> {
 
             let content = lines.content(in: startIndex..<endIndex).trimmed()
 
-            state.push("paragraph_open", nesting: .opening)
-            state.push("inline", nesting: .closing(self: true)) { token in
+            state.tokens.push("paragraph_open", nesting: .opening)
+            state.tokens.push("inline", nesting: .closing(self: true)) { token in
                 token.content = content
             }
-            state.push("paragraph_close", nesting: .closing())
+            state.tokens.push("paragraph_close", nesting: .closing())
 
             return true
         }

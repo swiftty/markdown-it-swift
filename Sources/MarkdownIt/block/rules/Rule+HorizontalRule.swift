@@ -22,7 +22,7 @@ extension Rule<Cursors.Line, BlockState> {
 
             lines.consume()
             
-            state.push("hr", nesting: .closing(self: true)) { token in
+            state.tokens.push("hr", nesting: .closing(self: true)) { token in
                 token.markup = .init(repeating: marker, count: cnt)
             }
 
