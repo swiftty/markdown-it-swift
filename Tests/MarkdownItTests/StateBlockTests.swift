@@ -26,6 +26,8 @@ class StateBlockTests: XCTestCase {
             "paragraph_open",
             "inline",
             "  └ text",
+            "  └ softbreak",
+            "  └ text",
             "paragraph_close",
             "paragraph_open",
             "inline",

@@ -23,7 +23,9 @@ public struct Tokens {
 
     var level = 0
 
-    init() {}
+    init(_ values: [Token] = []) {
+        self.values = values
+    }
 
     public mutating func push(_ type: String, nesting: Token.Nesting,
                               _ modify: (inout Token) -> Void = { _ in }) {

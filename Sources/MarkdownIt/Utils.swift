@@ -24,6 +24,14 @@ extension StringProtocol {
     }
 }
 
+extension String {
+    mutating func trim(after predicate: (Character) -> Bool) {
+        while let last, predicate(last) {
+            _ = popLast()
+        }
+    }
+}
+
 extension Substring {
     mutating func trim(after predicate: (Character) -> Bool) {
         while let last, predicate(last) {
