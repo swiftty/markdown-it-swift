@@ -1,7 +1,7 @@
 import Foundation
 
-extension Rule<Cursors.Line, BlockState> {
-    static var heading: Body {
+extension Rule<Cursors.Line, StateBlock> {
+    public static var heading: Body {
         return { lines, state in
             var line = lines.peek()
 

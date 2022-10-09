@@ -1,14 +1,14 @@
 import Foundation
 
-struct BlockState {
-    var blockIndent = 0
+public struct StateBlock {
+    public var blockIndent = 0
 
-    var ruler: Ruler<Cursors.Line, BlockState>
+    public var ruler: Ruler<Cursors.Line, StateBlock>
 
-    var tokens = Tokens()
+    public var tokens = Tokens()
 }
 
-extension BlockState {
+extension StateBlock {
     func terminate(_ name: String, source: Source<Cursors.Line>) -> Bool {
         var source = source
         var state = self

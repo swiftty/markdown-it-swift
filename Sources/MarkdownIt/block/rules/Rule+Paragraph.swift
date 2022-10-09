@@ -1,7 +1,7 @@
 import Foundation
 
-extension Rule<Cursors.Line, BlockState> {
-    static var paragraph: Body {
+extension Rule<Cursors.Line, StateBlock> {
+    public static var paragraph: Body {
         return { lines, state in
             let startIndex = lines.consume().cursor.index
             var endIndex = lines.cursor.endIndex

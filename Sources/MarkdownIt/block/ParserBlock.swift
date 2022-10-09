@@ -1,7 +1,7 @@
 import Foundation
 
 public class ParserBlock {
-    let ruler = Ruler<Cursors.Line, BlockState>(rules: [
+    let ruler = Ruler<Cursors.Line, StateBlock>(rules: [
         .init(name: "hr", terminates: ["paragraph", "reference", "blockquote", "list"],
               body: Rule.horizontalRule),
         .init(name: "heading", terminates: ["paragraph", "reference", "blockquote"],
@@ -13,7 +13,7 @@ public class ParserBlock {
         let rules = ruler.rules(for: "")
 
         var source = source
-        var state = BlockState(ruler: ruler)
+        var state = StateBlock(ruler: ruler)
         while !source.isEmpty {
             let line = source.peek()
             if line.isEmpty {
