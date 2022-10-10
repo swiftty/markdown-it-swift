@@ -81,11 +81,18 @@ extension Source<Cursors.Character> {
         string[cursor.index...]
     }
 
+    public var leadingSpaceWidth: Int {
+        var spaces = 0
+        for ch in string {
+            guard ch.isSpace else { return spaces }
+            spaces += ch == "\t" ? 4 - spaces % 4 : 1
+        }
+        return spaces
+    }
+
     public mutating func shouldBeCodeBlock(on blockIndent: Int) -> Bool {
-        let start = cursor.index
-        consume(while: \.isWhitespace && !\.isNewline)
-        let spaces = string.distance(from: start, to: cursor.index)
-        return spaces - blockIndent >= 4
+        consume(while: \.isSpace)
+        return leadingSpaceWidth - blockIndent >= 4
     }
 }
 
