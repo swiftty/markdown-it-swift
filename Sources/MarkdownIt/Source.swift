@@ -51,13 +51,18 @@ extension Source<Cursors.Character> {
         return peek()
     }
 
-    public mutating func consume(while cond: (Character) -> Bool) {
+    @discardableResult
+    public mutating func consume(while cond: (Character) -> Bool) -> Int {
+        var count = 0
         while !isEmpty, cond(peek()) {
             consume()
+            count += 1
         }
+        return count
     }
 
-    public mutating func consume(while ch: Character) {
+    @discardableResult
+    public mutating func consume(while ch: Character) -> Int {
         consume(while: { $0 == ch })
     }
 

@@ -2,6 +2,8 @@ import Foundation
 
 public class ParserBlock {
     let ruler = Ruler<Cursors.Line, StateBlock>(rules: [
+        .init(name: "fence", terminates: ["paragraph", "reference", "blockquote", "list"],
+              body: Rule.fence),
         .init(name: "hr", terminates: ["paragraph", "reference", "blockquote", "list"],
               body: Rule.horizontalRule),
         .init(name: "heading", terminates: ["paragraph", "reference", "blockquote"],
@@ -9,11 +11,9 @@ public class ParserBlock {
         .init(name: "paragraph", body: Rule.paragraph)
     ])
 
-    func parse(_ source: Source<Cursors.Line>) -> [Token] {
+    public func tokenize(source: inout Source<Cursors.Line>, state: inout StateBlock) -> [Token] {
         let rules = ruler.rules(for: "")
 
-        var source = source
-        var state = StateBlock(ruler: ruler)
         while !source.isEmpty {
             let line = source.peek()
             if line.isEmpty {
@@ -42,5 +42,11 @@ public class ParserBlock {
         }
 
         return Array(state.tokens)
+    }
+
+    public func parse(_ source: Source<Cursors.Line>) -> [Token] {
+        var source = source
+        var state = StateBlock(ruler: ruler)
+        return tokenize(source: &source, state: &state)
     }
 }

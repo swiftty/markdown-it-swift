@@ -64,4 +64,15 @@ class StateBlockTests: XCTestCase {
         ])
         XCTAssertEqual(tokens.first?.markup, "---")
     }
+
+    func test_fence() {
+        let tokens = parse("""
+        ```
+        foo
+        ```
+        """)
+
+        XCTAssertEqual(flattenTypes(tokens), ["fence"])
+        XCTAssertEqual(tokens.first?.content, "foo")
+    }
 }
