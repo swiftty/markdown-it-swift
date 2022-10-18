@@ -1,26 +1,5 @@
 import Foundation
 
-public struct StateBlock {
-    public var blockIndent = 0
-
-    public var ruler: Ruler<Cursors.Line, StateBlock>
-
-    public var tokens = Tokens()
-}
-
-extension StateBlock {
-    func terminate(_ name: String, source: Source<Cursors.Line>) -> Bool {
-        var source = source
-        var state = self
-        for rule in ruler.rules(for: name) {
-            if rule.body(&source, &state) {
-                return true
-            }
-        }
-        return false
-    }
-}
-
 extension NewState where Input == Source<Cursors.Line> {
     public mutating func push(_ type: String, nesting: Token.Nesting,
                               _ modify: (inout Token) -> Void = { _ in }) {
@@ -37,14 +16,14 @@ extension NewState where Input == Source<Cursors.Line> {
         if let outer {
             return outer(self)
         }
-        return terminate(with: md.block.ruleGraph.rules(for: rule))
+        return terminate(with: md.block.ruler.rules(for: rule))
     }
 
     public func terminate(_ outer: ((NewState) -> Bool)?) -> Bool {
         if let outer {
             return outer(self)
         }
-        return terminate(with: md.block.ruleGraph.rules())
+        return terminate(with: md.block.ruler.rules())
     }
 
     private func terminate(with rules: [any NewRule]) -> Bool {

@@ -7,17 +7,7 @@ private extension NewRule {
 }
 
 public class ParserBlock {
-    let ruler = Ruler<Cursors.Line, StateBlock>(rules: [
-        .init(name: "fence", terminates: ["paragraph", "reference", "blockquote", "list"],
-              body: Rule.fence),
-        .init(name: "hr", terminates: ["paragraph", "reference", "blockquote", "list"],
-              body: Rule.horizontalRule),
-        .init(name: "heading", terminates: ["paragraph", "reference", "blockquote"],
-              body: Rule.heading),
-        .init(name: "paragraph", body: Rule.paragraph)
-    ])
-
-    public var ruleGraph = RuleGraph(rules: [
+    public var ruler = RuleGraph(rules: [
         Rules.Fence().terminates(to: [
             Rules.Paragraph.self]),
         Rules.HorizontalRule().terminates(to: [
@@ -28,7 +18,7 @@ public class ParserBlock {
     ])
 
     public func tokenize(state: inout NewState<Source<Cursors.Line>>) -> [Token] {
-        let rules = ruleGraph.rules()
+        let rules = ruler.rules()
 
         while !state.input.isEmpty {
             let line = state.input.peek()
