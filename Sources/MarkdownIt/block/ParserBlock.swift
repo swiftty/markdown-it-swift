@@ -1,5 +1,11 @@
 import Foundation
 
+private extension NewRule {
+    func terminates(to values: [any NewRule.Type]) -> (Self, [any NewRule.Type]) {
+        return (self, values)
+    }
+}
+
 public class ParserBlock {
     let ruler = Ruler<Cursors.Line, StateBlock>(rules: [
         .init(name: "fence", terminates: ["paragraph", "reference", "blockquote", "list"],
@@ -11,22 +17,32 @@ public class ParserBlock {
         .init(name: "paragraph", body: Rule.paragraph)
     ])
 
-    public func tokenize(source: inout Source<Cursors.Line>, state: inout StateBlock) -> [Token] {
-        let rules = ruler.rules(for: "")
+    public var ruleGraph = RuleGraph(rules: [
+        Rules.Fence().terminates(to: [
+            Rules.Paragraph.self]),
+        Rules.HorizontalRule().terminates(to: [
+            Rules.Paragraph.self]),
+        Rules.Heading().terminates(to: [
+            Rules.Paragraph.self]),
+        Rules.Paragraph().terminates(to: [])
+    ])
 
-        while !source.isEmpty {
-            let line = source.peek()
+    public func tokenize(state: inout NewState<Source<Cursors.Line>>) -> [Token] {
+        let rules = ruleGraph.rules()
+
+        while !state.input.isEmpty {
+            let line = state.input.peek()
             if line.isEmpty {
-                source.consume()
+                state.input.consume()
                 continue
             }
 
             func applyRules() -> Bool {
-                let cursor = source.cursor
+                let cursor = state.input.cursor
                 for rule in rules {
-                    let ok = rule.body(&source, &state)
+                    let ok = rule(state: &state)
                     if ok {
-                        precondition(source.cursor != cursor,
+                        precondition(state.input.cursor != cursor,
                                      "block rule didn't increment state.cursor")
                         return true
                     }
@@ -37,16 +53,15 @@ public class ParserBlock {
             let ok = applyRules()
             assert(ok, "none of the block rules matched")
             if !ok {
-                source.consume()
+                state.input.consume()
             }
         }
 
         return Array(state.tokens)
     }
 
-    public func parse(_ source: Source<Cursors.Line>) -> [Token] {
-        var source = source
-        var state = StateBlock(ruler: ruler)
-        return tokenize(source: &source, state: &state)
+    public func parse(_ source: Source<Cursors.Line>, md: MarkdownIt) -> [Token] {
+        var state = NewState(input: source, tokens: [], md: md)
+        return tokenize(state: &state)
     }
 }
