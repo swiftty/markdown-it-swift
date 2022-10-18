@@ -10,7 +10,7 @@ extension Rules {
         public func apply(state: inout NewState<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
             var line = state.input.peek()
 
-            guard !line.shouldBeCodeBlock(on: state.indent) else { return false }
+            guard !line.shouldBeCodeBlock(on: state.block.indent) else { return false }
 
             let marker = line.consume()
             guard ["~", "`"].contains(marker) else { return false }
@@ -26,7 +26,7 @@ extension Rules {
                 end = state.input.cursor.startIndex
                 line = state.input.consume()
                 let leadingSpaceWidth = line.leadingSpaceWidth
-                if leadingSpaceWidth < state.indent {
+                if leadingSpaceWidth < state.block.indent {
                     // non-empty line with negative indent should stop the list:
                     // - ```
                     //  test
@@ -35,7 +35,7 @@ extension Rules {
 
                 line.consume(while: \.isSpace)
                 if line.consume() == marker { continue }
-                if leadingSpaceWidth - state.indent >= 4 { continue }
+                if leadingSpaceWidth - state.block.indent >= 4 { continue }
 
                 if line.consume(while: marker) + 1 < markerLength { continue }
 

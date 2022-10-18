@@ -1,12 +1,26 @@
 import Foundation
 
-extension NewState where Input == Source<Cursors.Line> {
+public enum BlockContext: StateContext {
+    public struct Value {
+        public var level = 0
+        public var indent = 0
+    }
+
+    public static var defaultValue: Value { .init() }
+}
+
+extension NewState<Source<Cursors.Line>> {
+    public var block: BlockContext.Value {
+        get { self[BlockContext.self] }
+        set { self[BlockContext.self] = newValue }
+    }
+
     public mutating func push(_ type: String, nesting: Token.Nesting,
                               _ modify: (inout Token) -> Void = { _ in }) {
-        var token = Token(type: type, nesting: nesting, level: level)
+        var token = Token(type: type, nesting: nesting, level: block.level)
         token.block = true
 
-        level += nesting.nextLevel
+        block.level += nesting.nextLevel
 
         modify(&token)
         tokens.append(token)

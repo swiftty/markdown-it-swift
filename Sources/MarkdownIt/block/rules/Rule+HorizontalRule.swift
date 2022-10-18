@@ -10,7 +10,7 @@ extension Rules {
         public func apply(state: inout NewState<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
             var line = state.input.peek()
 
-            guard !line.shouldBeCodeBlock(on: state.indent) else { return false }
+            guard !line.shouldBeCodeBlock(on: state.block.indent) else { return false }
 
             let marker = line.consume()
             guard ["*", "-", "_"].contains(marker) else { return false }

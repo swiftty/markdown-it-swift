@@ -5,23 +5,16 @@ import Foundation
 public enum Rules {}
 
 // MARK: -
-public protocol NewRule<Input>: CustomDebugStringConvertible {
+public protocol NewRule<Input>: StateContext, CustomDebugStringConvertible {
     associatedtype Input
-    associatedtype Context
 
     typealias Terminator<I> = (NewState<I>) -> Bool
-
-    static var defaultContext: Context { get }
 
     var name: String { get }
     var isEnabled: Bool { get set }
 
     @discardableResult
     func apply(state: inout NewState<Input>, terminates: Terminator<Input>?) -> Bool
-}
-
-extension NewRule where Context == Never {
-    public static var defaultContext: Context { fatalError() }
 }
 
 extension NewRule {
@@ -82,24 +75,31 @@ public struct RuleGraph {
     }
 }
 
+public protocol StateContext {
+    associatedtype Context
+
+    static var defaultValue: Context { get }
+}
+
+extension StateContext where Context == Never {
+    public static var defaultValue: Context { fatalError() }
+}
+
 public struct NewState<Input> {
     public var input: Input
     public var tokens: [Token]
 
     public let md: MarkdownIt
 
-    public var indent = 0
-    public var level = 0
-
-    public subscript <R>(rule: R.Type) -> R.Context where R: NewRule {
+    public subscript <C>(container: C.Type) -> C.Context where C: StateContext {
         get {
-            if let context = contexts[ObjectIdentifier(rule)] as? R.Context {
+            if let context = contexts[ObjectIdentifier(container)] as? C.Context {
                 return context
             }
-            return rule.defaultContext
+            return container.defaultValue
         }
         set {
-            contexts[ObjectIdentifier(rule)] = newValue
+            contexts[ObjectIdentifier(container)] = newValue
         }
     }
 

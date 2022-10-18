@@ -17,7 +17,7 @@ extension Rules {
                 var line = state.input.consume()
                 guard !line.isEmpty else { break }
 
-                if line.shouldBeCodeBlock(on: state.indent) {
+                if line.shouldBeCodeBlock(on: state.block.indent) {
                     continue
                 }
 
