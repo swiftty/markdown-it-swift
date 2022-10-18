@@ -50,12 +50,3 @@ extension NewState<Source<Cursors.Line>> {
         return false
     }
 }
-
-private extension Token.Nesting {
-    var nextLevel: Int {
-        switch self {
-        case .opening: return 1
-        case .closing(let flag): return flag ? 0 : -1
-        }
-    }
-}

@@ -1,24 +1,23 @@
 import Foundation
 
 public class ParserInline {
-    let ruler = Ruler<Cursors.Character, StateInline>(rules: [
-        .init(name: "newline", body: Rule.newline)
+    let ruler = RuleSet(rules: [
+        Rules.Newline()
     ])
 
-    func parse(_ tokens: [Token]) -> [Token] {
-        let rules = ruler.rules(for: "")
+    func parse(_ tokens: [Token], md: MarkdownIt) -> [Token] {
+        let rules = ruler.rules()
         var tokens = tokens
         for (i, var token) in tokens.enumerated() where token.type == "inline" {
-            var state = StateInline(tokens: token.children)
-            var source = Source<Cursors.Character>(token.content)
+            var state = NewState(input: Source<Cursors.Character>(token.content), tokens: token.children, md: md)
 
-            while !source.isEmpty {
+            while !state.input.isEmpty {
                 func applyRules() -> Bool {
-                    let cursor = source.cursor
+                    let cursor = state.input.cursor
                     for rule in rules {
-                        let ok = rule.body(&source, &state)
+                        let ok = rule(state: &state)
                         if ok {
-                            precondition(source.cursor != cursor,
+                            precondition(state.input.cursor != cursor,
                                          "inline rule didn't increment state.cursor")
                             return true
                         }
@@ -27,16 +26,14 @@ public class ParserInline {
                 }
 
                 let ok = applyRules()
-                if ok && source.isEmpty {
+                if ok && state.input.isEmpty {
                     continue
                 }
 
-                state.pending += String(source.consume())
+                state.inline.pending += String(state.input.consume())
             }
 
-            if !state.pending.isEmpty {
-                state.pushPending()
-            }
+            state.pushPendingIfNeeded()
             token.children = Array(state.tokens)
             tokens[i] = token
         }

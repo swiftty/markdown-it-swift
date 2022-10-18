@@ -4,7 +4,7 @@ extension Rules {
     public struct Fence: NewRule {
         public typealias Cursor = Source<Cursors.Line>
 
-        public var name: String { "heading" }
+        public var name: String { "fence" }
         public var isEnabled: Bool = true
 
         public func apply(state: inout NewState<Cursor>, terminates: Terminator<Cursor>?) -> Bool {

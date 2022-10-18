@@ -75,6 +75,18 @@ public struct RuleGraph {
     }
 }
 
+public struct RuleSet {
+    private var _rules: [any NewRule]
+
+    init(rules: [any NewRule]) {
+        _rules = rules
+    }
+
+    public func rules() -> [any NewRule] {
+        _rules
+    }
+}
+
 public protocol StateContext {
     associatedtype Context
 

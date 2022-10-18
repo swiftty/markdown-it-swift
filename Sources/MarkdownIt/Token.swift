@@ -39,7 +39,7 @@ public struct Tokens {
     }
 }
 
-private extension Token.Nesting {
+extension Token.Nesting {
     var nextLevel: Int {
         switch self {
         case .opening: return 1

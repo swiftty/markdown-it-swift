@@ -7,7 +7,7 @@ public struct MarkdownIt {
 
     public func parse(_ source: String) -> [Token] {
         var tokens = block.parse(.init(source), md: self)
-        tokens = inline.parse(tokens)
+        tokens = inline.parse(tokens, md: self)
 
         return tokens
     }
