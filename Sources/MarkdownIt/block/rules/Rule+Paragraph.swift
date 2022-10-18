@@ -28,11 +28,11 @@ extension Rules {
 
             let content = state.input.content(in: startIndex..<endIndex).trimmed()
 
-            state.push("paragraph_open", nesting: .opening)
-            state.push("inline", nesting: .closing(self: true)) { token in
+            state.push(.opening("paragraph"))
+            state.push(.inline("inline")) { token in
                 token.content = content
             }
-            state.push("paragraph_close", nesting: .closing())
+            state.push(.closing("paragraph"))
 
             return true
         }

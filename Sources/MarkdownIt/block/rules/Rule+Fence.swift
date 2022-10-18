@@ -47,7 +47,7 @@ extension Rules {
             }
 
             let content = state.input.content(in: start..<end).trimmed()
-            state.push("fence", nesting: .closing(self: true)) {
+            state.push(.inline("fence")) {
                 $0.content = content
                 $0.markup = String(repeating: String(marker), count: markerLength)
             }

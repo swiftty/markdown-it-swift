@@ -15,12 +15,11 @@ extension State<Source<Cursors.Line>> {
         set { self[BlockContext.self] = newValue }
     }
 
-    public mutating func push(_ type: String, nesting: Token.Nesting,
-                              _ modify: (inout Token) -> Void = { _ in }) {
-        var token = Token(type: type, nesting: nesting, level: block.level)
+    public mutating func push(_ depth: Token.Depth, _ modify: (inout Token) -> Void = { _ in }) {
+        var token = Token(depth: depth, level: block.level)
         token.block = true
 
-        block.level += nesting.nextLevel
+        block.level += depth.level
 
         modify(&token)
         tokens.append(token)

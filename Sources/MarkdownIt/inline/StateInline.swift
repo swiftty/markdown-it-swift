@@ -23,7 +23,7 @@ extension State<Source<Cursors.Character>> {
     }
 
     public mutating func pushPending() {
-        var token = Token(type: "text", nesting: .closing(self: true), level: inline.pendingLevel)
+        var token = Token(depth: .inline("text"), level: inline.pendingLevel)
         token.block = false
         token.content = inline.pending
         tokens.append(token)
@@ -31,13 +31,12 @@ extension State<Source<Cursors.Character>> {
         inline.pending = ""
     }
 
-    public mutating func push(_ type: String, nesting: Token.Nesting,
-                              _ modify: (inout Token) -> Void = { _ in }) {
+    public mutating func push(_ depth: Token.Depth, _ modify: (inout Token) -> Void = { _ in }) {
         pushPendingIfNeeded()
 
-        let level = inline.level + nesting.nextLevel
+        let level = inline.level + depth.level
 
-        var token = Token(type: type, nesting: nesting, level: level)
+        var token = Token(depth: depth, level: level)
         token.block = false
 
         inline.level = level

@@ -32,13 +32,13 @@ extension Rules {
             state.input.consume()
 
             let markup = String(repeating: "#", count: level)
-            state.push("heading_open", nesting: .opening) { token in
+            state.push(.opening("heading")) { token in
                 token.markup = markup
             }
-            state.push("inline", nesting: .closing(self: true)) { token in
+            state.push(.inline("inline")) { token in
                 token.content = String(content)
             }
-            state.push("heading_close", nesting: .closing()) { token in
+            state.push(.closing("heading")) { token in
                 token.markup = markup
             }
 

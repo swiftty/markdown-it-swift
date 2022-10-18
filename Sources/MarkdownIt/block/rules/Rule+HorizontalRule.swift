@@ -27,7 +27,7 @@ extension Rules {
 
             state.input.consume()
 
-            state.push("hr", nesting: .closing(self: true)) { token in
+            state.push(.inline("hr")) { token in
                 token.markup = .init(repeating: marker, count: cnt)
             }
 

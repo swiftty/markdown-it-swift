@@ -14,9 +14,9 @@ extension Rules {
             if state.inline.pending.hasSuffix(" ") {
                 let isHard = state.inline.pending.hasSuffix("  ")
                 state.inline.pending.trim(after: { $0 == " " })
-                state.push(isHard ? "hardbreak" : "softbreak", nesting: .closing(self: true))
+                state.push(.inline(isHard ? "hardbreak" : "softbreak"))
             } else {
-                state.push("softbreak", nesting: .closing(self: true))
+                state.push(.inline("softbreak"))
             }
 
             state.input.consume()  // "\n"
