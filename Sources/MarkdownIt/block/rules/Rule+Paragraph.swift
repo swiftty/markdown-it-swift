@@ -2,12 +2,12 @@ import Foundation
 
 extension Rules {
     public struct Paragraph: Rule {
-        public typealias Cursor = Source<Cursors.Line>
+        public typealias Input = Source<Cursors.Line>
 
         public var name: String { "paragraph" }
         public var isEnabled: Bool = true
 
-        public func apply(state: inout State<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
+        public func apply(state: inout State<Input>, terminates: Terminator<Input>?) -> Bool {
             let startIndex = state.input.consume().cursor.index
             var endIndex = state.input.cursor.endIndex
 
