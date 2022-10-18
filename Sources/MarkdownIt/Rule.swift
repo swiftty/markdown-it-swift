@@ -5,54 +5,55 @@ import Foundation
 public enum Rules {}
 
 // MARK: -
-public protocol NewRule<Input>: StateContext, CustomDebugStringConvertible {
+public protocol Rule<Input>: StateContext, CustomDebugStringConvertible {
     associatedtype Input
 
-    typealias Terminator<I> = (NewState<I>) -> Bool
+    typealias Terminator<I> = (State<I>) -> Bool
 
     var name: String { get }
     var isEnabled: Bool { get set }
 
     @discardableResult
-    func apply(state: inout NewState<Input>, terminates: Terminator<Input>?) -> Bool
+    func apply(state: inout State<Input>, terminates: Terminator<Input>?) -> Bool
 }
 
-extension NewRule {
+extension Rule {
     public var debugDescription: String {
         #"Rule { name: "\#(name)", enable: \#(isEnabled) }"#
     }
 }
 
-extension NewRule {
+extension Rule {
     @discardableResult
-    public func callAsFunction<I>(state: inout NewState<I>, terminates: Terminator<I>? = nil) -> Bool {
-        guard var _state = state as? NewState<Input> else { return false }
+    public func callAsFunction<I>(state: inout State<I>, terminates: Terminator<I>? = nil) -> Bool {
+        guard var _state = state as? State<Input> else { return false }
         let ret = apply(state: &_state, terminates: terminates == nil ? nil : { state in
-            guard let s = state as? NewState<I> else { return false }
+            guard let s = state as? State<I> else { return false }
             return terminates?(s) ?? false
         })
-        state = _state as! NewState<I>
+        state = _state as! State<I>
         return ret
     }
 }
 
+// MARK: -
 public struct RuleGraph {
-    private var _rules: [(rule: any NewRule, terminates: [any NewRule.Type])] = []
+    private var _rules: [(rule: any Rule, terminates: [any Rule.Type])] = []
 
-    private var cache: [ObjectIdentifier?: [any NewRule]]?
+    private var cache: [ObjectIdentifier?: [any Rule]]?
 
-    public init(rules: [(rule: any NewRule, terminates: [any NewRule.Type])]) {
+    public init(rules: [(rule: any Rule, terminates: [any Rule.Type])]) {
         _rules = rules
     }
 
-    public mutating func rules() -> [any NewRule] {
+    public mutating func rules() -> [any Rule] {
         if cache == nil {
             compile()
         }
         return cache?[nil] ?? []
     }
 
-    public mutating func rules<R>(for rule: R.Type) -> [any NewRule] {
+    public mutating func rules<R>(for rule: R.Type) -> [any Rule] {
         if cache == nil {
             compile()
         }
@@ -76,111 +77,13 @@ public struct RuleGraph {
 }
 
 public struct RuleSet {
-    private var _rules: [any NewRule]
+    private var _rules: [any Rule]
 
-    init(rules: [any NewRule]) {
+    init(rules: [any Rule]) {
         _rules = rules
     }
 
-    public func rules() -> [any NewRule] {
+    public func rules() -> [any Rule] {
         _rules
     }
 }
-
-public protocol StateContext {
-    associatedtype Context
-
-    static var defaultValue: Context { get }
-}
-
-extension StateContext where Context == Never {
-    public static var defaultValue: Context { fatalError() }
-}
-
-public struct NewState<Input> {
-    public var input: Input
-    public var tokens: [Token]
-
-    public let md: MarkdownIt
-
-    public subscript <C>(container: C.Type) -> C.Context where C: StateContext {
-        get {
-            if let context = contexts[ObjectIdentifier(container)] as? C.Context {
-                return context
-            }
-            return container.defaultValue
-        }
-        set {
-            contexts[ObjectIdentifier(container)] = newValue
-        }
-    }
-
-    private var contexts: [ObjectIdentifier: Any] = [:]
-
-    init(input: Input, tokens: [Token], md: MarkdownIt) {
-        self.input = input
-        self.tokens = tokens
-        self.md = md
-    }
-}
-
-private func foo() {
-    struct Block: NewRule {
-        var name: String { "block" }
-        var isEnabled: Bool = true
-
-        typealias Input = Source<Cursors.Line>
-        typealias Context = Never
-        func apply(state: inout NewState<Input>, terminates: Terminator<Input>?) -> Bool {
-            true
-        }
-    }
-    struct Block2: NewRule {
-        var name: String { "block" }
-        var isEnabled: Bool = true
-
-        typealias Input = Source<Cursors.Line>
-        typealias Context = Never
-        func apply(state: inout NewState<Input>, terminates: Terminator<Input>?) -> Bool {
-            true
-        }
-    }
-
-    RuleGraph(rules: [
-        (Block(), []),
-        (Block2(), [Block.self])
-    ])
-}
-
-public struct Rule<Cursor, State> {
-    public typealias Body = (inout Source<Cursor>, inout State) -> Bool
-
-    public var name: String
-    public var terminates: Set<String> = []
-    public var isEnabled: Bool = true
-    public var body: Body
-}
-
-public struct Ruler<Cursor, State> {
-    private var rules: [String: [Rule<Cursor, State>]] = [:]
-
-    init(rules ruleList: [Rule<Cursor, State>]) {
-        var chains: Set<String> = [""]
-        ruleList.forEach {
-            chains.formUnion($0.terminates)
-        }
-
-        for chain in chains {
-            for rule in ruleList {
-                guard rule.isEnabled else { continue }
-                guard chain.isEmpty || rule.terminates.contains(chain) else { continue }
-                rules[chain, default: []].append(rule)
-            }
-        }
-    }
-
-    public func rules(for name: String) -> [Rule<Cursor, State>] {
-        return rules[name] ?? []
-    }
-}
-

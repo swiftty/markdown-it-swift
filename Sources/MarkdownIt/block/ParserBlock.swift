@@ -1,7 +1,7 @@
 import Foundation
 
-private extension NewRule {
-    func terminates(to values: [any NewRule.Type]) -> (Self, [any NewRule.Type]) {
+private extension Rule {
+    func terminates(to values: [any Rule.Type]) -> (Self, [any Rule.Type]) {
         return (self, values)
     }
 }
@@ -17,7 +17,7 @@ public class ParserBlock {
         Rules.Paragraph().terminates(to: [])
     ])
 
-    public func tokenize(state: inout NewState<Source<Cursors.Line>>) -> [Token] {
+    public func tokenize(state: inout State<Source<Cursors.Line>>) -> [Token] {
         let rules = ruler.rules()
 
         while !state.input.isEmpty {
@@ -51,7 +51,7 @@ public class ParserBlock {
     }
 
     public func parse(_ source: Source<Cursors.Line>, md: MarkdownIt) -> [Token] {
-        var state = NewState(input: source, tokens: [], md: md)
+        var state = State(input: source, tokens: [], md: md)
         return tokenize(state: &state)
     }
 }

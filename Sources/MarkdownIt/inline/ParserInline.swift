@@ -9,7 +9,7 @@ public class ParserInline {
         let rules = ruler.rules()
         var tokens = tokens
         for (i, var token) in tokens.enumerated() where token.type == "inline" {
-            var state = NewState(input: Source<Cursors.Character>(token.content), tokens: token.children, md: md)
+            var state = State(input: Source<Cursors.Character>(token.content), tokens: token.children, md: md)
 
             while !state.input.isEmpty {
                 func applyRules() -> Bool {

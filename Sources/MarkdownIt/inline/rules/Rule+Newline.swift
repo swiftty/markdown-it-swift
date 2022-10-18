@@ -1,13 +1,13 @@
 import Foundation
 
 extension Rules {
-    public struct Newline: NewRule {
+    public struct Newline: Rule {
         public typealias Cursor = Source<Cursors.Character>
 
         public var name: String { "newline" }
         public var isEnabled: Bool = true
 
-        public func apply(state: inout NewState<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
+        public func apply(state: inout State<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
             guard state.input.peek() == "\n" else { return false }
 
             // '  \n' -> hardbreak

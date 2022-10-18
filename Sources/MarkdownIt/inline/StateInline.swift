@@ -11,7 +11,7 @@ public enum InlineContext: StateContext {
     public static var defaultValue: Value { .init() }
 }
 
-extension NewState<Source<Cursors.Character>> {
+extension State<Source<Cursors.Character>> {
     public var inline: InlineContext.Value {
         get { self[InlineContext.self] }
         set { self[InlineContext.self] = newValue }

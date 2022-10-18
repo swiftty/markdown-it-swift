@@ -9,7 +9,7 @@ public enum BlockContext: StateContext {
     public static var defaultValue: Value { .init() }
 }
 
-extension NewState<Source<Cursors.Line>> {
+extension State<Source<Cursors.Line>> {
     public var block: BlockContext.Value {
         get { self[BlockContext.self] }
         set { self[BlockContext.self] = newValue }
@@ -26,21 +26,21 @@ extension NewState<Source<Cursors.Line>> {
         tokens.append(token)
     }
 
-    public func terminate<R>(for rule: R.Type, _ outer: ((NewState) -> Bool)?) -> Bool {
+    public func terminate<R>(for rule: R.Type, _ outer: ((State) -> Bool)?) -> Bool {
         if let outer {
             return outer(self)
         }
         return terminate(with: md.block.ruler.rules(for: rule))
     }
 
-    public func terminate(_ outer: ((NewState) -> Bool)?) -> Bool {
+    public func terminate(_ outer: ((State) -> Bool)?) -> Bool {
         if let outer {
             return outer(self)
         }
         return terminate(with: md.block.ruler.rules())
     }
 
-    private func terminate(with rules: [any NewRule]) -> Bool {
+    private func terminate(with rules: [any Rule]) -> Bool {
         var state = self
         for rule in rules {
             if rule(state: &state) {

@@ -1,13 +1,13 @@
 import Foundation
 
 extension Rules {
-    public struct Fence: NewRule {
+    public struct Fence: Rule {
         public typealias Cursor = Source<Cursors.Line>
 
         public var name: String { "fence" }
         public var isEnabled: Bool = true
 
-        public func apply(state: inout NewState<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
+        public func apply(state: inout State<Cursor>, terminates: Terminator<Cursor>?) -> Bool {
             var line = state.input.peek()
 
             guard !line.shouldBeCodeBlock(on: state.block.indent) else { return false }
