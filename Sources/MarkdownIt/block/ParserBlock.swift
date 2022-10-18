@@ -17,7 +17,8 @@ public class ParserBlock {
         Rules.Paragraph().terminates(to: [])
     ])
 
-    public func tokenize(state: inout State<Source<Cursors.Line>>) -> [Token] {
+    public func tokenize(state: inout State<Source<Cursors.Line>>,
+                         terminates: ((State<Source<Cursors.Line>>) -> Bool)? = nil) -> [Token] {
         let rules = ruler.rules()
 
         while !state.input.isEmpty {
@@ -30,7 +31,7 @@ public class ParserBlock {
             func applyRules() -> Bool {
                 let cursor = state.input.cursor
                 for rule in rules {
-                    let ok = rule(state: &state)
+                    let ok = rule(state: &state, terminates: terminates)
                     if ok {
                         precondition(state.input.cursor != cursor,
                                      "block rule didn't increment state.cursor")

@@ -12,6 +12,16 @@ public struct State<Input> {
 
     public let md: MarkdownIt
 
+    private var contexts: [ObjectIdentifier: Any] = [:]
+
+    init(input: Input, tokens: [Token], md: MarkdownIt) {
+        self.input = input
+        self.tokens = tokens
+        self.md = md
+    }
+}
+
+extension State {
     public subscript <K>(key: K.Type) -> K.Context where K: ContextKey {
         get {
             if let context = contexts[ObjectIdentifier(key)] as? K.Context {
@@ -22,13 +32,5 @@ public struct State<Input> {
         set {
             contexts[ObjectIdentifier(key)] = newValue
         }
-    }
-
-    private var contexts: [ObjectIdentifier: Any] = [:]
-
-    init(input: Input, tokens: [Token], md: MarkdownIt) {
-        self.input = input
-        self.tokens = tokens
-        self.md = md
     }
 }

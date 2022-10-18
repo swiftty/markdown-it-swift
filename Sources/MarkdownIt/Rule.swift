@@ -6,6 +6,7 @@ public enum Rules {}
 
 // MARK: -
 public protocol Rule<Input>: ContextKey, CustomDebugStringConvertible {
+    associatedtype Context = Never
     associatedtype Input
 
     typealias Terminator<I> = (State<I>) -> Bool
