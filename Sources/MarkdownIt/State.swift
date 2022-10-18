@@ -1,13 +1,9 @@
 import Foundation
 
-public protocol StateContext {
+public protocol ContextKey {
     associatedtype Context
 
-    static var defaultValue: Context { get }
-}
-
-extension StateContext where Context == Never {
-    public static var defaultValue: Context { fatalError() }
+    static var defaultContext: Context { get }
 }
 
 public struct State<Input> {
@@ -16,15 +12,15 @@ public struct State<Input> {
 
     public let md: MarkdownIt
 
-    public subscript <C>(container: C.Type) -> C.Context where C: StateContext {
+    public subscript <K>(key: K.Type) -> K.Context where K: ContextKey {
         get {
-            if let context = contexts[ObjectIdentifier(container)] as? C.Context {
+            if let context = contexts[ObjectIdentifier(key)] as? K.Context {
                 return context
             }
-            return container.defaultValue
+            return key.defaultContext
         }
         set {
-            contexts[ObjectIdentifier(container)] = newValue
+            contexts[ObjectIdentifier(key)] = newValue
         }
     }
 

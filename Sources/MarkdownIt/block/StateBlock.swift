@@ -1,16 +1,16 @@
 import Foundation
 
-public enum BlockContext: StateContext {
-    public struct Value {
+public enum BlockContext: ContextKey {
+    public struct Context {
         public var level = 0
         public var indent = 0
     }
 
-    public static var defaultValue: Value { .init() }
+    public static var defaultContext: Context { .init() }
 }
 
 extension State<Source<Cursors.Line>> {
-    public var block: BlockContext.Value {
+    public var block: BlockContext.Context {
         get { self[BlockContext.self] }
         set { self[BlockContext.self] = newValue }
     }

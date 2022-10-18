@@ -1,18 +1,18 @@
 import Foundation
 
-public enum InlineContext: StateContext {
-    public struct Value {
+public enum InlineContext: ContextKey {
+    public struct Context {
         public var pending = ""
         public var pendingLevel = 0
 
         public var level = 0
     }
 
-    public static var defaultValue: Value { .init() }
+    public static var defaultContext: Context { .init() }
 }
 
 extension State<Source<Cursors.Character>> {
-    public var inline: InlineContext.Value {
+    public var inline: InlineContext.Context {
         get { self[InlineContext.self] }
         set { self[InlineContext.self] = newValue }
     }

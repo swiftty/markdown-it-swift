@@ -5,7 +5,7 @@ import Foundation
 public enum Rules {}
 
 // MARK: -
-public protocol Rule<Input>: StateContext, CustomDebugStringConvertible {
+public protocol Rule<Input>: ContextKey, CustomDebugStringConvertible {
     associatedtype Input
 
     typealias Terminator<I> = (State<I>) -> Bool
@@ -21,6 +21,10 @@ extension Rule {
     public var debugDescription: String {
         #"Rule { name: "\#(name)", enable: \#(isEnabled) }"#
     }
+}
+
+extension Rule where Context == Never {
+    public static var defaultContext: Context { fatalError() }
 }
 
 extension Rule {
