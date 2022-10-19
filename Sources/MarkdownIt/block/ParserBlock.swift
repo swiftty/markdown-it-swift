@@ -31,10 +31,12 @@ public class ParserBlock {
             func applyRules() -> Bool {
                 let cursor = state.input.cursor
                 for rule in rules {
-                    let ok = rule(state: &state, terminates: terminates)
+                    var newState = state
+                    let ok = rule(state: &newState, terminates: terminates)
                     if ok {
-                        precondition(state.input.cursor != cursor,
+                        precondition(newState.input.cursor != cursor,
                                      "block rule didn't increment state.cursor")
+                        state = newState
                         return true
                     }
                 }

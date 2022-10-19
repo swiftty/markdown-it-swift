@@ -8,7 +8,7 @@ extension Rules {
         public var isEnabled: Bool = true
 
         public func apply(state: inout State<Input>, terminates: Terminator<Input>?) -> Bool {
-            var line = state.input.peek()
+            var line = state.input.consume()
 
             guard !line.shouldBeCodeBlock(on: state.block.indent) else { return false }
 
@@ -24,8 +24,6 @@ extension Rules {
             }
 
             guard cnt >= 3 else { return false }
-
-            state.input.consume()
 
             state.push(.inline("hr")) { token in
                 token.markup = .init(repeating: marker, count: cnt)

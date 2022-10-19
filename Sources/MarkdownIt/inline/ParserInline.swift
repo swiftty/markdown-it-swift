@@ -15,10 +15,12 @@ public class ParserInline {
                 func applyRules() -> Bool {
                     let cursor = state.input.cursor
                     for rule in rules {
-                        let ok = rule(state: &state)
+                        var newState = state
+                        let ok = rule(state: &newState)
                         if ok {
-                            precondition(state.input.cursor != cursor,
+                            precondition(newState.input.cursor != cursor,
                                          "inline rule didn't increment state.cursor")
+                            state = newState
                             return true
                         }
                     }

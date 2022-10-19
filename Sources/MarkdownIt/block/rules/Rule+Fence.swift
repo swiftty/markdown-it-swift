@@ -8,7 +8,7 @@ extension Rules {
         public var isEnabled: Bool = true
 
         public func apply(state: inout State<Input>, terminates: Terminator<Input>?) -> Bool {
-            var line = state.input.peek()
+            var line = state.input.consume()
 
             guard !line.shouldBeCodeBlock(on: state.block.indent) else { return false }
 
@@ -17,8 +17,6 @@ extension Rules {
 
             let markerLength = line.consume(while: marker) + 1
             if markerLength < 3 { return false }
-
-            state.input.consume()
 
             let start = state.input.cursor.startIndex
             var end = start

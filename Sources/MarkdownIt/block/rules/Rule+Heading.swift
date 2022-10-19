@@ -8,7 +8,7 @@ extension Rules {
         public var isEnabled: Bool = true
 
         public func apply(state: inout State<Input>, terminates: Terminator<Input>?) -> Bool {
-            var line = state.input.peek()
+            var line = state.input.consume()
 
             guard !line.shouldBeCodeBlock(on: state.block.indent) else { return false }
             guard line.consume() == "#" else { return false }
@@ -28,8 +28,6 @@ extension Rules {
             var content = line.content
             content.trim(after: \.isWhitespace)
             content.trim(after: { $0 == "#" })
-
-            state.input.consume()
 
             let markup = String(repeating: "#", count: level)
             state.push(.opening("heading")) { token in
